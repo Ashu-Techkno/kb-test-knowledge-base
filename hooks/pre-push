@@ -1,0 +1,31 @@
+#!/bin/sh
+# Knowledge-base sync: global pre-push hook (installed by hooks/install-hooks.sh).
+#
+# 1. Runs the repository's own .git/hooks/pre-push first, if it has one (a global
+#    core.hooksPath would otherwise hide it). If that hook fails, the push stops as usual.
+# 2. Starts the knowledge-base sync in the background and returns immediately.
+#    The developer's push is never blocked or slowed down by the sync.
+
+# This file lives in <KB_HOME>/hooks/, so KB_HOME is one folder up (works whatever $HOME is).
+KB_HOME="${KB_HOOKS_HOME:-$(cd "$(dirname "$0")/.." && pwd)}"
+input=$(cat)
+
+# --- 1. chain to the repo's own pre-push hook
+git_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+if [ -n "$git_dir" ] && [ -x "$git_dir/hooks/pre-push" ]; then
+  printf '%s\n' "$input" | "$git_dir/hooks/pre-push" "$@" || exit $?
+fi
+
+# --- 2. start the sync in the background (never fails the push)
+if [ -f "$KB_HOME/kb-sync-worker.sh" ] && [ "${KB_SYNC_DISABLE:-0}" != "1" ]; then
+  repo_dir=$(git rev-parse --show-toplevel 2>/dev/null)
+  mkdir -p "$KB_HOME/queue" 2>/dev/null
+  refs_file="$KB_HOME/queue/$(date +%s)-$$.refs"
+  printf '%s\n' "$input" > "$refs_file" 2>/dev/null
+  if command -v nohup >/dev/null 2>&1; then
+    nohup sh "$KB_HOME/kb-sync-worker.sh" "$repo_dir" "$2" "$refs_file" </dev/null >>"$KB_HOME/sync.log" 2>&1 &
+  else
+    sh "$KB_HOME/kb-sync-worker.sh" "$repo_dir" "$2" "$refs_file" </dev/null >>"$KB_HOME/sync.log" 2>&1 &
+  fi
+fi
+exit 0

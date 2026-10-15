@@ -1,0 +1,10 @@
+#!/bin/sh
+# Knowledge-base hooks: pass-through for every other git hook.
+# A global core.hooksPath makes git ignore each repository's .git/hooks folder,
+# so this script (installed under each hook name) runs the repo's own hook if it exists.
+name=$(basename "$0")
+git_dir=$(git rev-parse --git-common-dir 2>/dev/null) || exit 0
+if [ -x "$git_dir/hooks/$name" ]; then
+  exec "$git_dir/hooks/$name" "$@"
+fi
+exit 0

@@ -4,6 +4,7 @@
 // Usage (from the knowledge-base folder):
 //   node scripts/sync.mjs --repos ../repos            # read the clones as they are
 //   node scripts/sync.mjs --repos ../repos --pull     # git pull --ff-only each clone first
+//   node scripts/sync.mjs --repos ../work --only dqm  # one repo only (used by the git hook)
 //
 // What it does, for every git repo found in --repos:
 //   1. Writes projects/<slug>/facts.yaml  (generated: stack files, deps, branches, contributors, activity)
@@ -29,6 +30,7 @@ const args = process.argv.slice(2);
 const opt = (name, dflt) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : dflt; };
 const REPOS = path.resolve(opt("--repos", path.join(KB, "..", "repos")));
 const PULL = args.includes("--pull");
+const ONLY = opt("--only", "");
 const TODAY = new Date().toISOString().slice(0, 10);
 
 if (!fs.existsSync(REPOS)) { console.error(`Repos folder not found: ${REPOS}`); process.exit(1); }
@@ -196,8 +198,24 @@ function scaffold(pdir, slug, name, facts) {
 // ---------------------------------------------------------------- main loop
 const changes = [];
 const seen = new Set();
-const repoDirs = fs.readdirSync(REPOS, { withFileTypes: true })
+let repoDirs = fs.readdirSync(REPOS, { withFileTypes: true })
   .filter((d) => d.isDirectory() && fs.existsSync(path.join(REPOS, d.name, ".git"))).map((d) => d.name).sort();
+if (ONLY) {
+  repoDirs = repoDirs.filter((n) => n.toLowerCase() === ONLY.toLowerCase());
+  if (!repoDirs.length) { console.error(`--only: repo folder "${ONLY}" not found in ${REPOS}`); process.exit(1); }
+  // Rollout scope (kb.config.json): while include_repos is set, an unknown repo is only added
+  // if it is in the list or is new (first commit on/after include_created_after).
+  const name = repoDirs[0];
+  const inList = (CFG.include_repos || []).some((r) => r.toLowerCase() === name.toLowerCase());
+  const known = byRepo.has(name.toLowerCase()) || fs.existsSync(path.join(PROJECTS, slugify(name)));
+  if ((CFG.include_repos || []).length && !inList && !known) {
+    const first = git(path.join(REPOS, name), "log", "--reverse", "--format=%cs").split("\n")[0] || "";
+    if (!CFG.include_created_after || !first || first < CFG.include_created_after) {
+      console.log(`Skipped ${name}: outside the rollout scope in kb.config.json (first commit ${first || "?"}).`);
+      process.exit(0);
+    }
+  }
+}
 
 for (const name of repoDirs) {
   const dir = path.join(REPOS, name);
@@ -334,4 +352,4 @@ if (changes.length) {
 console.log(`Repos scanned: ${repoDirs.length}`);
 console.log(`Projects in KB: ${all.length} (documented ${documented.length}, not yet documented ${undocumented.length})`);
 console.log(`Changes recorded: ${changes.length}${changes.length ? " (see CHANGELOG.md)" : ""}`);
-if (notCloned.length) console.log(`Not found in repos folder: ${notCloned.join(", ")}`);
+if (notCloned.length && !ONLY) console.log(`Not found in repos folder: ${notCloned.join(", ")}`);
