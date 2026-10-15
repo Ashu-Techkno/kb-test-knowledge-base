@@ -4,16 +4,16 @@ repository:
   name: kb-test-app-1
   url: "https://github.com/Ashu-Techkno/kb-test-app-1"
   default_branch: main
-  head_commit: 964d113
+  head_commit: c19ac2c
   first_commit_date: 2026-10-15
   last_commit_date: 2026-10-15
-  last_commit_message: "Add dependencies for React and Express"
-  commit_count: 2
+  last_commit_message: "Add pg dependency to package.json"
+  commit_count: 3
 branches:
   - main
 contributors:
   - name: Ashu-Techkno
-    commits: 2
+    commits: 3
 has:
   README.md: true
   docs/: false
@@ -27,4 +27,5 @@ has:
 dependency_files:
   package.json:
     - express
+    - pg
     - react
