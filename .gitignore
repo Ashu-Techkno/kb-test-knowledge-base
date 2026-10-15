@@ -1,0 +1,17 @@
+# Obsidian: personal / per-user files
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/plugins/*/data.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Secrets (never commit)
+.env
+*.pem
+*.key

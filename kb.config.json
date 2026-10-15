@@ -1,0 +1,10 @@
+{
+  "org": "Ashu-Techkno",
+  "owner_type": "user",
+  "skip_repos": ["kb-test-knowledge-base"],
+  "include_archived": false,
+  "include_forks": false,
+  "_comment": "TEST CONFIG for a personal account. Only these repos (and repos created on/after the date) are synced.",
+  "include_repos": ["kb-test-app-1"],
+  "include_created_after": "2026-10-15"
+}

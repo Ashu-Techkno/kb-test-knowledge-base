@@ -1,0 +1,57 @@
+# Keeps the knowledge base in step with the project repos.
+# Runs every night and on demand (Actions tab -> "Sync knowledge base" -> Run workflow).
+#
+# Needs one repository secret:
+#   KB_READ_TOKEN  read-only token for the organisation's repos
+#                  (GitHub App installation token or fine-grained PAT with "Contents: Read" on all repos).
+#
+# The job only writes generated files: projects/*/facts.yaml, projects/README.md,
+# projects/MISSING-DOCS.md, CHANGELOG.md, and the folder of a newly found project.
+# It never edits README.md / context.md / ADRs that already exist.
+
+name: Sync knowledge base
+
+on:
+  schedule:
+    - cron: "30 20 * * *"   # 20:30 UTC = 02:00 IST
+  workflow_dispatch:
+
+permissions:
+  contents: write            # commit generated files to this repo only
+
+concurrency:
+  group: kb-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch project repos (read-only)
+        env:
+          KB_READ_TOKEN: ${{ secrets.KB_READ_TOKEN }}
+        run: node scripts/fetch-repos.mjs --dir "$RUNNER_TEMP/repos"
+
+      - name: Update knowledge base
+        run: node scripts/sync.mjs --repos "$RUNNER_TEMP/repos"
+
+      - name: Commit generated changes
+        run: |
+          git add -A projects CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name  "kb-sync-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(sync): update knowledge base from project repos"
+          git push
+        # If main is branch-protected, replace this step with
+        # peter-evans/create-pull-request@v6 to open a PR instead of pushing.

@@ -1,0 +1,39 @@
+# Project metadata. Fixed fields so tools and Codex can parse them reliably.
+# Do not write reasoning here; that belongs in context.md and the ADRs.
+
+name: PROJECT_NAME
+display_name: ""
+description: ""            # One line: what this project does
+status: active             # active | maintenance | deprecated | archived
+
+owners:
+  team: ""
+  tech_lead: ""            # Name / GitHub handle
+  contacts: []
+
+repository:
+  url: ""                  # Source repo URL
+  default_branch: main
+
+stack:
+  languages: []            # e.g. [typescript, python]
+  frameworks: []           # e.g. [nestjs, react]
+  datastores: []           # e.g. [postgresql, redis]
+  infra: []                # e.g. [aws-ecs, docker]
+
+environments:
+  - name: production
+    url: ""
+  - name: staging
+    url: ""
+
+dependencies:
+  depends_on: []           # Other internal projects (folder names)
+  used_by: []
+
+docs:
+  readme: README.md
+  context: context.md
+  decisions: decisions/
+
+last_reviewed: YYYY-MM-DD  # Review and update every 3-6 months
