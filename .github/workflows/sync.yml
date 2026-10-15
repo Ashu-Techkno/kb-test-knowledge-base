@@ -44,7 +44,8 @@ jobs:
 
       - name: Commit generated changes
         run: |
-          git add -A projects CHANGELOG.md
+          git add -A projects
+          if [ -f CHANGELOG.md ]; then git add CHANGELOG.md; fi
           if git diff --cached --quiet; then
             echo "No changes."
             exit 0
