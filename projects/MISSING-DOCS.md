@@ -5,5 +5,6 @@
 | Project | Missing | ADRs (accepted / total) | Open TODOs |
 |---|---|---|---|
 | [kb-test-app-1](kb-test-app-1/README.md) | review of auto-created docs (context.md, owners), ADRs | 0 / 0 | 0 |
+| [kb-test-app-2](kb-test-app-2/README.md) | review of auto-created docs (context.md, owners), ADRs | 0 / 0 | 0 |
 
-
+**In the KB but not found in the repos folder:** kb-test-app-1
