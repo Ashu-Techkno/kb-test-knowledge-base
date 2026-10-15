@@ -1,0 +1,40 @@
+# Created automatically by scripts/sync.mjs on 2026-10-15 from https://github.com/Ashu-Techkno/kb-test-app-1.
+# Facts were filled in from the repo. Check them, fill the empty fields, then delete the docs_status line.
+
+name: kb-test-app-1
+display_name: kb-test-app-1
+description: ""            # One line: what this project does
+status: active             # active | maintenance | deprecated | archived
+docs_status: auto-generated   # delete this line once a person has reviewed the docs
+
+owners:
+  team: ""
+  tech_lead: ""
+  contacts: [Ashu-Techkno]
+
+repository:
+  url: https://github.com/Ashu-Techkno/kb-test-app-1
+  default_branch: main
+
+stack:
+  languages: [javascript]
+  frameworks: [express, react]
+  datastores: []
+  ai_services: []
+  infra: []
+
+environments:
+  - name: production
+    url: ""
+
+dependencies:
+  depends_on: []
+  used_by: []
+
+docs:
+  readme: README.md
+  context: context.md
+  decisions: decisions/
+
+started: 2026-10-15
+last_reviewed: 2026-10-15

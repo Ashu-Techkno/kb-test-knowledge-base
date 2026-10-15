@@ -9,7 +9,7 @@ One row per company repository. Tier 1 = full docs + ADRs, 2 = short docs, 3 = i
 
 ## Not yet documented
 
-None.
+- [kb-test-app-1](kb-test-app-1/README.md)
 
 See [MISSING-DOCS.md](MISSING-DOCS.md) for what each project still needs.
 
